@@ -71,7 +71,9 @@ except (FileNotFoundError, KeyError):
 intents = discord.Intents.default()
 intents.members = True
 
-client = commands.Bot(intents=intents, command_prefix="?")
+client = commands.Bot(intents=intents, command_prefix="?", help_command=None)
+client.remove_command('help')
+
 status = cycle(['?edt pour emplois du temps', "Licence Info #1"])
 
 
