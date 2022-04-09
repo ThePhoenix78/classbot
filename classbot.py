@@ -17,7 +17,7 @@ import sys
 # await asyncio.sleep(timera)
 # client.guilds
 
-bot_version = "3.4.3"
+bot_version = "3.4.4"
 classbot_folder = "classbot_folder"
 classbot_config_file = f"{classbot_folder}/classbot_config.json"
 plante_verte = f"{classbot_folder}/team_plante_verte.png"
@@ -270,6 +270,7 @@ async def version(ctx):
 
 
 @client.command()
+@commands.cooldown(1, 300, commands.BucketType.user)
 async def clear(ctx, amount=1):
     if is_in_staff(ctx):
         await ctx.channel.purge(limit=amount+1)
@@ -378,15 +379,15 @@ async def edt(ctx, cle_dico="", plus=""):
     await send_edt_to_chat(channel, pdf_name, liscInfo[cle_dico])
 
 
-client.remove_command('help')
 @client.command()
 async def help(ctx):
-    embed = discord.Embed(title="EDT BOT Commands", description="Préfix : `?`", color=discord.Color.gold())
+    embed = discord.Embed(title="EDT BOT Commands", description="Préfix : `?`", color=discord.Color.blue())
     embed.set_author(name='Liste des commandes')
     embed.add_field(name="**edt**", value="pour voir son emploi du temps")
     embed.add_field(name="**clear (nombre de massage à retirer)**", value="pour supprimer le dernier message")
     embed.add_field(name="**bin (nombre binaire)**", value="convertir en entier")
-    if is_in_staff(ctx) :
+
+    if is_in_staff(ctx):
         embed.add_field(name="**addrole (role) (emoji)**", value="à utiliser en réponse à un précédant message, créé un emote pour donner un role")
         embed.add_field(name="**help**", value="pour avoir ce message")
         embed.add_field(name="**reboot**", value="pour restart le bot")
