@@ -378,6 +378,29 @@ async def edt(ctx, cle_dico="", plus=""):
     await send_edt_to_chat(channel, pdf_name, liscInfo[cle_dico])
 
 
+client.remove_command('help')
+@client.command()
+async def help(ctx):
+    embed = discord.Embed(title="EDT BOT Commands", description="Préfix : `?`", color=discord.Color.gold())
+    embed.set_author(name='Liste des commandes')
+    embed.add_field(name="**edt**", value="pour voir son emploi du temps")
+    embed.add_field(name="**clear (nombre de massage à retirer)**", value="pour supprimer le dernier message")
+    embed.add_field(name="**bin (nombre binaire)**", value="convertir en entier")
+    if is_in_staff(ctx) :
+        embed.add_field(name="**addrole (role) (emoji)**", value="à utiliser en réponse à un précédant message, créé un emote pour donner un role")
+        embed.add_field(name="**help**", value="pour avoir ce message")
+        embed.add_field(name="**reboot**", value="pour restart le bot")
+        embed.add_field(name="**removeemote**", value="à utiliser en réponse à un message lié avec addrole pour retirer l'emote")
+        embed.add_field(name="**removerole**", value="à utiliser en réponse à un message lié avec addrole pour desactiver")
+        embed.add_field(name="**sedt**", value="desactive les notif de changement d'edt")
+        embed.add_field(name="**stop**", value="stop le bot")
+        embed.add_field(name="**update**", value="update le bot")
+        embed.add_field(name="**uptedt (url) (classe)**", value="update l'emploi du temps")
+        embed.add_field(name="**version**", value="donne la version du bot")
+    # embed.set_image(url=attachment)
+    await ctx.send(embed=embed)
+
+
 @client.command(aliases=["addmention", "addemoji", "addemote"])
 @commands.check(is_in_staff)
 async def addrole(ctx, role_: discord.Role, emote):
@@ -466,7 +489,7 @@ async def removeemote(ctx, emote):
     try:
         role_db.remove_emote(commu, chat, refId, role_name)
     except Exception:
-        await ctx.channel.send("Erreur! Role inexistant")
+        await ctx.channel.send("Erreur! Emote inexistant")
         return
 
     role_db.save(role_db.role_database)
