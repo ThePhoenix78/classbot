@@ -155,6 +155,19 @@ def convert_url(url: str = ""):
     return value
 
 
+def is_dev(ctx):
+    if ctx.author.id in (366055261930127360, 649532920599543828):
+        return True
+
+    member = ctx.message.author
+    roles = [role.name for role in member.roles]
+    admins = ["Bot Dev"]
+
+    for role in roles:
+        if role in admins:
+            return True
+
+
 def is_in_staff(ctx):
     if ctx.author.id in (366055261930127360, 649532920599543828):
         return True
@@ -662,7 +675,7 @@ async def stop(ctx):
 
 
 @client.command(aliases=["upt"])
-@commands.check(is_in_staff)
+@commands.check(is_dev)
 async def update(ctx, *, ipe=programmer):
     await ctx.send("updating code")
     await client.change_presence(activity=discord.Game("Updating..."), status=discord.Status.idle)
