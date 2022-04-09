@@ -17,7 +17,7 @@ import sys
 # await asyncio.sleep(timera)
 # client.guilds
 
-bot_version = "3.4.2"
+bot_version = "3.4.3"
 classbot_folder = "classbot_folder"
 classbot_config_file = f"{classbot_folder}/classbot_config.json"
 plante_verte = f"{classbot_folder}/team_plante_verte.png"
@@ -25,6 +25,8 @@ classbot_token = f"{classbot_folder}/classbot_token"
 edt_path = f"{classbot_folder}/edt_database.json"
 role_folder = f"{classbot_folder}/role_database.json"
 
+programmer = os.path.basename(sys.argv[0])
+role_db = RoleManager(role_folder)
 
 vals = [classbot_folder, "edt"]
 
@@ -75,13 +77,6 @@ client = commands.Bot(intents=intents, command_prefix="?", help_command=None)
 client.remove_command('help')
 
 status = cycle(['?edt pour emplois du temps', "Licence Info #1"])
-
-
-programmer = os.path.basename(sys.argv[0])
-
-resetSystem = False
-
-role_db = RoleManager(role_folder)
 
 
 welcome_message = """
@@ -699,6 +694,9 @@ async def update(ctx, *, ipe=programmer):
 @tasks.loop(seconds=127)
 async def change_status():
     await client.change_presence(activity=discord.Game(next(status)))
+
+
+resetSystem = False
 
 
 @tasks.loop(seconds=43201)
