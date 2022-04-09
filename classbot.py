@@ -23,6 +23,7 @@ classbot_config_file = f"{classbot_folder}/classbot_config.json"
 plante_verte = f"{classbot_folder}/team_plante_verte.png"
 classbot_token = f"{classbot_folder}/classbot_token"
 edt_path = f"{classbot_folder}/edt_database.json"
+role_folder = f"{classbot_folder}/role_database.json"
 
 
 vals = [classbot_folder, "edt"]
@@ -78,7 +79,7 @@ programmer = os.path.basename(sys.argv[0])
 
 resetSystem = False
 
-role_db = RoleManager("role_database.json")
+role_db = RoleManager(role_folder)
 
 
 welcome_message = """
