@@ -520,6 +520,9 @@ async def emb(ctx):
 
 @client.event
 async def on_raw_reaction_add(ctx):
+    if ctx.user_id == client.user.id:
+        return
+
     message_id = str(ctx.message_id)
     chat_id = ctx.channel_id
     guild_id = ctx.guild_id
@@ -537,6 +540,9 @@ async def on_raw_reaction_add(ctx):
 
 @client.event
 async def on_raw_reaction_remove(ctx):
+    if ctx.user_id == client.user.id:
+        return
+
     guild_id = ctx.guild_id
 
     # guild_id = 550450730192994306
