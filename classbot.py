@@ -3,6 +3,8 @@
 from discord.ext import commands, tasks
 from pdf2image import convert_from_path
 from datetime import datetime, date
+from discord_slash import SlashCommand
+import discord_slash
 from RoleManager import RoleManager
 from itertools import cycle
 from pathlib import Path
@@ -75,6 +77,7 @@ intents.members = True
 
 client = commands.Bot(intents=intents, command_prefix="?", help_command=None)
 client.remove_command('help')
+slash = SlashCommand(client, sync_commands=True)
 
 status = cycle(['?edt pour emplois du temps', "Licence Info #1"])
 
@@ -165,11 +168,13 @@ def is_dev(ctx):
             return True
 
 
-def is_in_staff(ctx):
+def is_in_staff(ctx, direct_author=False):
     if ctx.author.id in (366055261930127360, 649532920599543828):
         return True
-
-    member = ctx.message.author
+    if not direct_author:
+        member = ctx.message.author
+    else:
+        member = ctx.author
     roles = [role.name for role in member.roles]
     admins = ["Admin", "Modo", "Bot Dev"]
 
@@ -379,15 +384,16 @@ async def edt(ctx, cle_dico="", plus=""):
     await send_edt_to_chat(channel, pdf_name, liscInfo[cle_dico])
 
 
-@client.command()
-async def help(ctx):
+@slash.slash(name="help", description="liste des commande")
+async def help(ctx: discord_slash.SlashContext):
+    print(ctx.author)
     embed = discord.Embed(title="EDT BOT Commands", description="Préfix : `?`", color=discord.Color.blue())
     embed.set_author(name='Liste des commandes')
     embed.add_field(name="**edt**", value="pour voir son emploi du temps")
     embed.add_field(name="**clear (nombre de massage à retirer)**", value="pour supprimer le dernier message")
     embed.add_field(name="**bin (nombre binaire)**", value="convertir en entier")
 
-    if is_in_staff(ctx):
+    if is_in_staff(ctx, True):
         embed.add_field(name="**addrole (role) (emoji)**", value="à utiliser en réponse à un précédant message, créé un emote pour donner un role")
         embed.add_field(name="**help**", value="pour avoir ce message")
         embed.add_field(name="**reboot**", value="pour restart le bot")
@@ -399,7 +405,7 @@ async def help(ctx):
         embed.add_field(name="**uptedt (url) (classe)**", value="update l'emploi du temps")
         embed.add_field(name="**version**", value="donne la version du bot")
     # embed.set_image(url=attachment)
-    await ctx.send(embed=embed)
+    await ctx.send(embed=embed, hidden=True)
 
 
 @client.command(aliases=["addmention", "addemoji", "addemote"])
