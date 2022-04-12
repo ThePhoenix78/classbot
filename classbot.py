@@ -19,7 +19,7 @@ import sys
 # await asyncio.sleep(timera)
 # client.guilds
 
-bot_version = "3.5.1"
+bot_version = "3.5.2"
 classbot_folder = "classbot_folder"
 classbot_config_file = f"{classbot_folder}/classbot_config.json"
 plante_verte = f"{classbot_folder}/team_plante_verte.png"
@@ -302,6 +302,7 @@ async def version(ctx):
 async def clear(ctx, amount=1):
     if is_in_staff(ctx):
         await ctx.channel.purge(limit=amount+1)
+        clear.reset_cooldown(ctx)
     elif amount < 5:
         await ctx.channel.purge(limit=amount+1)
     else:
@@ -517,6 +518,13 @@ async def removeemote(ctx, emote):
 @slash.slash(name="help", description="liste des commande")
 async def help_slash(ctx: discord_slash.SlashContext):
     await ctx.send(embed=get_help(ctx, True), hidden=True)
+
+
+@slash.slash(name="clear", description="efface les messages")
+async def clear_slash(ctx: discord_slash.SlashContext, amount: int = 1):
+    if is_in_staff(ctx, True):
+        await ctx.channel.purge(limit=amount+1)
+        await ctx.send("Les messages ont bien été retiré.", hidden=True)
 
 
 @slash.slash(name="addrole", description="liste des commande")
