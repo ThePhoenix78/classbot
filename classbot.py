@@ -523,7 +523,7 @@ async def help_slash(ctx: discord_slash.SlashContext):
 @slash.slash(name="clear", description="efface les messages")
 async def clear_slash(ctx: discord_slash.SlashContext, amount: int = 1):
     if is_in_staff(ctx, True):
-        await ctx.channel.purge(limit=amount+1)
+        await ctx.channel.purge(limit=amount)
         await ctx.send("Les messages ont bien été retiré.", hidden=True)
 
 
