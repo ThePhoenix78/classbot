@@ -89,7 +89,8 @@ Je t'invite à choisir ta classe dans le salon {}
 Si tu as la moindre question, n'hésite pas a demander de l'aide
 """
 
-def get_help(ctx,is_slash):
+
+def get_help(ctx, is_slash: bool = False):
     embed = discord.Embed(title="EDT BOT Commands", description="Préfix : `?`", color=discord.Color.blue())
     embed.set_author(name='Liste des commandes')
     embed.add_field(name="**edt**", value="pour voir son emploi du temps")
@@ -110,6 +111,7 @@ def get_help(ctx,is_slash):
     # embed.set_image(url=attachment)
 
     return embed
+
 
 def update_edt_database(key, value):
     global liscInfo
@@ -407,11 +409,12 @@ async def edt(ctx, cle_dico="", plus=""):
 
 @client.command()
 async def help(ctx):
-    await ctx.send(embed=get_help(ctx,False))
+    await ctx.send(embed=get_help(ctx, False))
+
 
 @slash.slash(name="help", description="liste des commande")
-async def help(ctx: discord_slash.SlashContext):
-    await ctx.send(embed=get_help(ctx,True), hidden=True)
+async def help_msg(ctx: discord_slash.SlashContext):
+    await ctx.send(embed=get_help(ctx, True), hidden=True)
 
 
 @client.command(aliases=["addmention", "addemoji", "addemote"])
