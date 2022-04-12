@@ -604,6 +604,7 @@ async def removeemote_slash(ctx: discord_slash.SlashContext, emote, message_id):
         await ctx.send("Erreur! message_id invalide!", hidden=True)
 
     try:
+        await role_message.clear_reaction(emote)
         role_db.remove_emote(commu, chat, refId, role_name)
     except Exception:
         await ctx.send("Erreur! Emote inexistant", hidden=True)
