@@ -19,7 +19,7 @@ import sys
 # await asyncio.sleep(timera)
 # client.guilds
 
-bot_version = "3.5.0"
+bot_version = "3.5.1"
 classbot_folder = "classbot_folder"
 classbot_config_file = f"{classbot_folder}/classbot_config.json"
 plante_verte = f"{classbot_folder}/team_plante_verte.png"
@@ -511,7 +511,8 @@ async def removeemote(ctx, emote):
     await ctx.channel.purge(limit=1)
 
 
-#-------------------------------- SLASH COMMANDE -------------------------------
+# -------------------------------- SLASH COMMANDE -------------------------------
+
 
 @slash.slash(name="help", description="liste des commande")
 async def help_slash(ctx: discord_slash.SlashContext):
@@ -519,100 +520,91 @@ async def help_slash(ctx: discord_slash.SlashContext):
 
 
 @slash.slash(name="addrole", description="liste des commande")
-async def addrole_slash(ctx: discord_slash.SlashContext,role_: discord.Role, emote, message_id):
-    if is_in_staff(ctx,True):
-        
-        refId = message_id
-        role = role_.name
-        emote = emote
-        commu = ctx.guild.id
-        chat = ctx.channel.id
+async def addrole_slash(ctx: discord_slash.SlashContext, role_: discord.Role, emote, message_id):
+    if not is_in_staff(ctx, True):
+        await ctx.send("Vous n'avez pas les permissions pour utiliser cette commande.", hidden=True)
+        return
 
-        guild_info = client.get_guild(int(commu))
-        channel = guild_info.get_channel(int(chat))
-        try:
-            role_message = await channel.fetch_message(int(refId))
-        except Exception:
-            await ctx.send("Erreur! message_id invalide!",hidden=True)
+    refId = message_id
+    role = role_.name
+    emote = emote
+    commu = ctx.guild.id
+    chat = ctx.channel.id
 
-        try:
-            await role_message.add_reaction(emote)
-        except Exception:
-            await ctx.send("Erreur! Mauvaise emote!",hidden=True)
-            return
+    guild_info = client.get_guild(int(commu))
+    channel = guild_info.get_channel(int(chat))
+    try:
+        role_message = await channel.fetch_message(int(refId))
+    except Exception:
+        await ctx.send("Erreur! message_id invalide!", hidden=True)
 
-        await role_db.bind(commu, chat, refId, emote, role)
-        role_db.save(role_db.role_database)
-        await ctx.send(f"{role_} à bien été créé avec l'emote {emote}.",hidden=True)
-        #channel = guild_info.get_channel(int(chat))
-        #role_message = await channel.fetch_message(ctx.message.id)
-        #await role_message.add_reaction("✅")
-        #await ctx.channel.purge(limit=1)
-    else:
-        await ctx.send(f"Vous n'avez pas les permissions pour utiliser cette commande.",hidden=True)
+    try:
+        await role_message.add_reaction(emote)
+    except Exception:
+        await ctx.send("Erreur! Mauvaise emote!", hidden=True)
+        return
+
+    await role_db.bind(commu, chat, refId, emote, role)
+    role_db.save(role_db.role_database)
+    await ctx.send(f"{role_} à bien été créé avec l'emote {emote}.", hidden=True)
 
 
 @slash.slash(name="removerole", description="retire le role")
-async def removerole_slash(ctx:discord_slash.SlashContext, role: discord.Role, message_id):
-    if is_in_staff(ctx,True):
-        refId = message_id
-        role_name = role.name
-        commu = ctx.guild.id
-        chat = ctx.channel.id
-        guild_info = client.get_guild(int(commu))
-        channel = guild_info.get_channel(int(chat))
-        try:
-            role_message = await channel.fetch_message(int(refId))
-        except Exception:
-            await ctx.send("Erreur! message_id invalide!",hidden=True)
+async def removerole_slash(ctx: discord_slash.SlashContext, role: discord.Role, message_id):
+    if not is_in_staff(ctx, True):
+        await ctx.send("Vous n'avez pas les permissions pour utiliser cette commande.", hidden=True)
+        return
 
+    refId = message_id
+    role_name = role.name
+    commu = ctx.guild.id
+    chat = ctx.channel.id
+    guild_info = client.get_guild(int(commu))
+    channel = guild_info.get_channel(int(chat))
 
-        try:
-            role_db.remove_role(commu, chat, refId, role_name)
-        except Exception:
-            await ctx.send("Erreur! Role inexistant", hidden=True)
-            return
+    try:
+        role_message = await channel.fetch_message(int(refId))
+    except Exception:
+        await ctx.send("Erreur! message_id invalide!", hidden=True)
 
-        role_db.save(role_db.role_database)
-        await ctx.send(f"{role} à bien été retiré du message.",hidden=True)
-        #channel = guild_info.get_channel(int(chat))
-        #role_message = await channel.fetch_message(ctx.id)
-        #await role_message.add_reaction("✅")
-        #await ctx.channel.purge(limit=1)
-    else:
-        await ctx.send(f"Vous n'avez pas les permissions pour utiliser cette commande.",hidden=True)
+    try:
+        role_db.remove_role(commu, chat, refId, role_name)
+    except Exception:
+        await ctx.send("Erreur! Role inexistant", hidden=True)
+        return
+
+    role_db.save(role_db.role_database)
+    await ctx.send(f"{role} à bien été retiré du message.", hidden=True)
 
 
 @slash.slash(name="removeemote", description="retir l'emote")
-async def removeemote_slash(ctx:discord_slash.SlashContext, emote, message_id):
-    if is_in_staff(ctx,True):
-        refId = message_id
-        role_name = emote
-        commu = ctx.guild.id
-        chat = ctx.channel.id
-        guild_info = client.get_guild(int(commu))
-        channel = guild_info.get_channel(int(chat))
-        try:
-            role_message = await channel.fetch_message(int(refId))
-        except Exception:
-            await ctx.send("Erreur! message_id invalide!",hidden=True)
+async def removeemote_slash(ctx: discord_slash.SlashContext, emote, message_id):
+    if not is_in_staff(ctx, True):
+        await ctx.send("Vous n'avez pas les permissions pour utiliser cette commande.", hidden=True)
+        return
 
-        try:
-            role_db.remove_emote(commu, chat, refId, role_name)
-        except Exception:
-            await ctx.send("Erreur! Emote inexistant", hidden=True)
-            return
+    refId = message_id
+    role_name = emote
+    commu = ctx.guild.id
+    chat = ctx.channel.id
+    guild_info = client.get_guild(int(commu))
+    channel = guild_info.get_channel(int(chat))
 
-        role_db.save(role_db.role_database)
-        await ctx.send(f"{emote} à bien été retiré du message.",hidden=True)
-        #channel = guild_info.get_channel(int(chat))
-        #role_message = await channel.fetch_message(ctx.message.id)
-        #await role_message.add_reaction("✅")
-        #await ctx.channel.purge(limit=1)
-    else:
-        await ctx.send(f"Vous n'avez pas les permissions pour utiliser cette commande.",hidden=True)
-     
-        
+    try:
+        role_message = await channel.fetch_message(int(refId))
+    except Exception:
+        await ctx.send("Erreur! message_id invalide!", hidden=True)
+
+    try:
+        role_db.remove_emote(commu, chat, refId, role_name)
+    except Exception:
+        await ctx.send("Erreur! Emote inexistant", hidden=True)
+        return
+
+    role_db.save(role_db.role_database)
+    await ctx.send(f"{emote} à bien été retiré du message.", hidden=True)
+
+
 # --------------------------------- BLOCKCHAIN ---------------------------------
 
 
