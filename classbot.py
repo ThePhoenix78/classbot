@@ -307,11 +307,13 @@ async def clear(ctx, amount=1):
 
 @client.command(aliases=["bin", "int", "entier"])
 async def binaire(ctx, message):
+    message = "Error!"
     try:
-        await ctx.channel.send(f"Binaire : {bin(int(message))[2:]}")
-        await ctx.channel.send(f"Entier : {int(message, 2)}")
+        message = f"Binaire : {bin(int(message))[2:]}\nEntier : {int(message, 2)}"
     except ValueError:
-        await ctx.channel.send(f"Entier : {int(message, 2)}")
+        message = f"Entier : {int(message, 2)}"
+
+    await ctx.send(message)
 
 
 @client.command()
