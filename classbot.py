@@ -115,11 +115,11 @@ def get_help(ctx, is_slash: bool = False):
 
 def convert_time(value: int):
     val3, val2, val = 0, value//60, value % 60
-    message = f"Try again in {val2}min {val}s."
+    message = f"{val2}min {val}s."
 
     if val2 > 60:
         val3, val2 = val2//60, val2 % 60
-        message = f"Try again in {val3}h {val2}min {val}s."
+        message = f"{val3}h {val2}min {val}s."
 
     return message
 
@@ -268,7 +268,8 @@ async def on_command_error(ctx, error):
 
     elif isinstance(error, commands.CommandOnCooldown):
         value = int(f"{error.retry_after:.0f}")
-        message = convert_time(value)
+        message = "Try again in "
+        message += convert_time(value)
 
         em = discord.Embed(title="Slow it down bro!", description=message)
         await ctx.send(embed=em)
@@ -287,7 +288,8 @@ async def test(ctx):
 @commands.check(is_in_staff)
 async def version(ctx):
     value = int(time.time()-timer)
-    message = convert_time(value)
+    message = "online : "
+    message += convert_time(value)
     await ctx.send(f"version : {bot_version}\nping : {round(client.latency * 1000)}ms :ping_pong:\ntime up : {message}")
 
 
