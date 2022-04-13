@@ -288,9 +288,9 @@ async def test(ctx):
 @commands.check(is_in_staff)
 async def version(ctx):
     value = int(time.time()-timer)
-    message = "online : "
-    message += convert_time(value)
-    await ctx.send(f"version : {bot_version}\nping : {round(client.latency * 1000)}ms :ping_pong:\ntime up : {message}")
+    message = convert_time(value)
+    final_message = f"version : {bot_version}\nping : {round(client.latency * 1000)}ms :ping_pong:\ntime up : {message}"
+    await ctx.send(final_message)
 
 
 @client.command()
