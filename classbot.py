@@ -19,7 +19,7 @@ import sys
 # await asyncio.sleep(timera)
 # client.guilds
 
-bot_version = "3.5.2"
+bot_version = "3.5.3"
 classbot_folder = "classbot_folder"
 classbot_config_file = f"{classbot_folder}/classbot_config.json"
 plante_verte = f"{classbot_folder}/team_plante_verte.png"
@@ -113,6 +113,17 @@ def get_help(ctx, is_slash: bool = False):
     return embed
 
 
+def convert_time(value: int):
+    val3, val2, val = 0, value//60, value % 60
+    message = f"Try again in {val2}min {val}s."
+
+    if val2 > 60:
+        val3, val2 = val2//60, val2 % 60
+        message = f"Try again in {val3}h {val2}min {val}s."
+
+    return message
+
+
 def update_edt_database(key, value):
     global liscInfo
     with open(edt_path, "rb") as f:
@@ -158,7 +169,7 @@ def convert_url(url: str = ""):
 
     temp = int(magic[0])
 
-    if num_semaine-chiffre_temporaire < 0:
+    if num_semaine - chiffre_temporaire < 0:
         return False
 
     id2 = chiffre_temporaire - temp
@@ -257,12 +268,7 @@ async def on_command_error(ctx, error):
 
     elif isinstance(error, commands.CommandOnCooldown):
         value = int(f"{error.retry_after:.0f}")
-        val3, val2, val = 0, value//60, value % 60
-        message = f"Try again in {val2}min {val}s."
-
-        if val2 > 60:
-            val3, val2 = val2//60, val2 % 60
-            message = f"Try again in {val3}h {val2}min {val}s."
+        message = convert_time(value)
 
         em = discord.Embed(title="Slow it down bro!", description=message)
         await ctx.send(embed=em)
@@ -281,13 +287,7 @@ async def test(ctx):
 @commands.check(is_in_staff)
 async def version(ctx):
     value = int(time.time()-timer)
-    val3, val2, val = 0, value//60, value % 60
-    message = f"{val2}min {val}s."
-
-    if val2 > 60:
-        val3, val2 = val2//60, val2 % 60
-        message = f"{val3}h {val2}min {val}s."
-
+    message = convert_time(value)
     await ctx.send(f"version : {bot_version}\nping : {round(client.latency * 1000)}ms :ping_pong:\ntime up : {message}")
 
 
@@ -529,7 +529,6 @@ async def addrole_slash(ctx: discord_slash.SlashContext, role_: discord.Role, em
 
     refId = message_id
     role = role_.name
-    emote = emote
     commu = ctx.guild.id
     chat = ctx.channel.id
 
