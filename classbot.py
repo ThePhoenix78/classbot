@@ -154,22 +154,16 @@ def convert_url(url: str = ""):
 
     id0 = int(magic.pop(0))
     id1 = int(magic2.pop(0))
-    id2 = int(magic2[0])
+    chiffre_temporaire = int(magic2[0])
 
     temp = int(magic[0])
 
-    if num_semaine-id2 < 0:
+    if num_semaine-chiffre_temporaire < 0:
         return False
 
-    i = 0
+    id2 = chiffre_temporaire - temp
 
-    while id2-i != temp and i < 80:
-        i += 1
-        if id2--i == temp:
-            i = -i
-            break
-
-    value = [id0, id1, i]
+    value = [id0, id1, id2]
     size = download_edt("test.pdf", value)
 
     if size < 500:
