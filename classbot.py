@@ -24,13 +24,16 @@ classbot_folder = "classbot_folder"
 classbot_config_file = f"{classbot_folder}/classbot_config.json"
 plante_verte = f"{classbot_folder}/team_plante_verte.png"
 classbot_token = f"{classbot_folder}/classbot_token"
-edt_path = f"{classbot_folder}/edt_database.json"
 role_folder = f"{classbot_folder}/role_database.json"
+
+edt_database_path = f"{classbot_folder}/edt_database.json"
+edt_path = "edt/main"
+edt_temp_path = "edt/temp"
 
 programmer = os.path.basename(sys.argv[0])
 role_db = RoleManager(role_folder)
 
-vals = [classbot_folder, "edt"]
+vals = [classbot_folder, edt_path, edt_temp_path]
 
 for name in vals:
     Path(name).mkdir(exist_ok=True)
@@ -65,7 +68,7 @@ except FileNotFoundError:
 
 current_semester = "infoS1"
 try:
-    with open(edt_path, "rb") as f:
+    with open(edt_database_path, "rb") as f:
         liscInfo = json.loads(f.read())[current_semester]
 
 except (FileNotFoundError, KeyError):
@@ -126,7 +129,7 @@ def convert_time(value: int):
 
 def update_edt_database(key, value):
     global liscInfo
-    with open(edt_path, "rb") as f:
+    with open(edt_database_path, "rb") as f:
         database = json.loads(f.read())
 
     val = database[current_semester].get(key)
@@ -139,7 +142,7 @@ def update_edt_database(key, value):
     except Exception:
         return False
 
-    with open(edt_path, "w") as f:
+    with open(edt_database_path, "w") as f:
         f.write(json.dumps(database, indent=4))
 
     liscInfo = database[current_semester]
@@ -611,6 +614,30 @@ async def removeemote_slash(ctx: discord_slash.SlashContext, emote, message_id):
     await ctx.send(f"{emote} à bien été retiré du message.", hidden=True)
 
 
+@client.command()
+@commands.check(is_in_staff)
+async def edtpush(ctx):
+    che = che="edt/temp"
+
+    if len(ctx.message.attachments) == 0:
+        await ctx.send("Error! No file attached!")
+        return
+
+    attachment = ctx.message.attachments[0].url
+    name = ctx.message.attachments[0].filename
+
+    if name.lower() in ["liste_de_fichiers"]:
+        await ctx.send("Error! Forbidden files!")
+        return
+
+    with requests.get(attachment, stream=True) as r:
+        pat = f"{che}/{name}"
+        with open(pat, 'wb') as fd:
+            for chunk in r.iter_content(1000):
+                fd.write(chunk)
+
+    await ctx.send(f"File installed at : {pat}")
+
 # --------------------------------- BLOCKCHAIN ---------------------------------
 
 
@@ -693,7 +720,6 @@ async def on_member_remove(ctx):
 
 
 def download_edt(pdf_name: str, indices: list = None, plus: int = 0):
-    path_to_temps_pdf = f"edt/temp/{pdf_name}"
     # permet de transfomer la date en compteur du jour dans la semaine
     # et de la semaine dans l'année (retourne l'année, le numéro de semaine et le numéro du jour)
     # utilisé pour les ids du liens pour l'edt
@@ -711,24 +737,26 @@ def download_edt(pdf_name: str, indices: list = None, plus: int = 0):
     url_edt = "http://applis.univ-nc.nc/gedfs/edtweb2/{}.{}/PDF_EDT_{}_{}_{}.pdf"
     url = url_edt.format(indices[0], num_semaine - indices[2] + plus, indices[1], num_semaine + plus, annee)
 
+    path_to_temps_pdf = f"edt/temp/{pdf_name}"
+
     with requests.get(url, stream=True) as r:
         with open(path_to_temps_pdf, 'wb') as fd:
             for chunk in r.iter_content(1000):
                 fd.write(chunk)
 
-    if os.path.getsize(path_to_temps_pdf)<200:
+    if os.path.getsize(path_to_temps_pdf) < 200:
         path_to_pdf = f"edt/{pdf_name}"
 
         with open(path_to_pdf, 'wb') as fd:
-            with open(path_to_temps_pdf, 'wb') as fd2:
-                fd.write(fd2)
+            with open(path_to_temps_pdf, 'rb') as fd2:
+                fd.write(fd2.read())
 
     return os.path.getsize(path_to_temps_pdf)
 
 
 async def send_edt_to_chat(channel, pdf_name: str, indices: list = None):
     path_to_pdf = f"edt/temp/{pdf_name}"
-    if os.path.getsize(path_to_pdf)<200:
+    if os.path.getsize(path_to_pdf) < 200:
         path_to_pdf = f"edt/{pdf_name}"
     edt_id = indices[0]
 
