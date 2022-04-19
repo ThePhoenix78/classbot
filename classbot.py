@@ -693,7 +693,7 @@ async def on_member_remove(ctx):
 
 
 def download_edt(pdf_name: str, indices: list = None, plus: int = 0):
-    path_to_pdf = f"edt/{pdf_name}"
+    path_to_temps_pdf = f"edt/temp/{pdf_name}"
     # permet de transfomer la date en compteur du jour dans la semaine
     # et de la semaine dans l'année (retourne l'année, le numéro de semaine et le numéro du jour)
     # utilisé pour les ids du liens pour l'edt
@@ -712,15 +712,24 @@ def download_edt(pdf_name: str, indices: list = None, plus: int = 0):
     url = url_edt.format(indices[0], num_semaine - indices[2] + plus, indices[1], num_semaine + plus, annee)
 
     with requests.get(url, stream=True) as r:
-        with open(path_to_pdf, 'wb') as fd:
+        with open(path_to_temps_pdf, 'wb') as fd:
             for chunk in r.iter_content(1000):
                 fd.write(chunk)
 
-    return os.path.getsize(path_to_pdf)
+    if os.path.getsize(path_to_temps_pdf)<200:
+        path_to_pdf = f"edt/{pdf_name}"
+
+        with open(path_to_pdf, 'wb') as fd:
+            with open(path_to_temps_pdf, 'wb') as fd2:
+                fd.write(fd2)
+
+    return os.path.getsize(path_to_temps_pdf)
 
 
 async def send_edt_to_chat(channel, pdf_name: str, indices: list = None):
-    path_to_pdf = f"edt/{pdf_name}"
+    path_to_pdf = f"edt/temp/{pdf_name}"
+    if os.path.getsize(path_to_pdf)<200:
+        path_to_pdf = f"edt/{pdf_name}"
     edt_id = indices[0]
 
     with open(path_to_pdf, 'rb') as fp:
