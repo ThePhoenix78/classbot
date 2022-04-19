@@ -27,7 +27,7 @@ classbot_token = f"{classbot_folder}/classbot_token"
 role_folder = f"{classbot_folder}/role_database.json"
 
 edt_database_path = f"{classbot_folder}/edt_database.json"
-edt_path = "edt/main"
+edt_path = "edt"
 edt_temp_path = "edt/temp"
 
 programmer = os.path.basename(sys.argv[0])
@@ -178,7 +178,9 @@ def convert_url(url: str = ""):
     id2 = chiffre_temporaire - temp
 
     value = [id0, id1, id2]
-    size = download_edt("test.pdf", value)
+    path_to_pdf = download_edt("test.pdf", value)
+
+    size = os.path.getsize(path_to_pdf)
 
     if size < 500:
         return False
@@ -398,12 +400,21 @@ async def edt(ctx, cle_dico="", plus=""):
     except Exception:
         plus = 0
 
-    download_edt(pdf_name, liscInfo[cle_dico], plus)
+    check = compare_edt(pdf_name, liscInfo[cle_dico], plus)
+    corrupt = False
+
+    if check in (3, 4, 5, 6):
+        pdf_name = f"temp/{cle_dico}.pdf"
+        corrupt = True
+
     channel = ctx.channel
 
     message = f"EDT pour : {cle_dico.upper()}"
     if plus:
         message += f" (+{plus})"
+
+    if corrupt:
+        message += "\n`EDT Corrompu! Ceci est une ancienne version!`"
 
     await channel.send(message)
     await send_edt_to_chat(channel, pdf_name, liscInfo[cle_dico])
@@ -617,8 +628,6 @@ async def removeemote_slash(ctx: discord_slash.SlashContext, emote, message_id):
 @client.command()
 @commands.check(is_in_staff)
 async def edtpush(ctx):
-    che = che="edt/temp"
-
     if len(ctx.message.attachments) == 0:
         await ctx.send("Error! No file attached!")
         return
@@ -631,7 +640,7 @@ async def edtpush(ctx):
         return
 
     with requests.get(attachment, stream=True) as r:
-        pat = f"{che}/{name}"
+        pat = f"{edt_path}/{name}"
         with open(pat, 'wb') as fd:
             for chunk in r.iter_content(1000):
                 fd.write(chunk)
@@ -719,6 +728,46 @@ async def on_member_remove(ctx):
 # ----------------------------------- EDT ----------------------------------
 
 
+def compare_edt(pdf_name, indices: list = None, plus: int = 0):
+    path_to_pdf = f"{edt_path}/{pdf_name}"
+    temp_pdf = f"temp/{pdf_name}"
+    path_to_temp = f"{edt_path}/{temp_pdf}"
+
+    try:
+        poid_old = os.path.getsize(path_to_pdf)
+    except Exception:
+        poid_old = 0
+
+    poid_new = download_edt(temp_pdf, indices, plus)
+    poid_new = os.path.getsize(poid_new)
+
+    if poid_old == poid_new and os.path.getsize(path_to_temp) < 500:
+        # même taille et corrompu
+        return 5
+
+    elif poid_old == poid_new and os.path.getsize(path_to_temp) < 2000:
+        # même taille et erreur serveur
+        return 6
+
+    elif poid_old == poid_new:
+        # même taille
+        return 2
+
+    elif os.path.getsize(path_to_temp) < 500:
+        # pdf corrompu
+        return 3
+
+    elif os.path.getsize(path_to_temp) < 2000:
+        # erreur serveur
+        return 4
+
+    with open(path_to_pdf, 'wb') as f1:
+        with open(path_to_temp, 'rb') as f2:
+            f1.write(f2.read())
+
+    return path_to_pdf
+
+
 def download_edt(pdf_name: str, indices: list = None, plus: int = 0):
     # permet de transfomer la date en compteur du jour dans la semaine
     # et de la semaine dans l'année (retourne l'année, le numéro de semaine et le numéro du jour)
@@ -737,27 +786,18 @@ def download_edt(pdf_name: str, indices: list = None, plus: int = 0):
     url_edt = "http://applis.univ-nc.nc/gedfs/edtweb2/{}.{}/PDF_EDT_{}_{}_{}.pdf"
     url = url_edt.format(indices[0], num_semaine - indices[2] + plus, indices[1], num_semaine + plus, annee)
 
-    path_to_temps_pdf = f"edt/temp/{pdf_name}"
+    path_to_pdf = f"{edt_path}/{pdf_name}"
 
     with requests.get(url, stream=True) as r:
-        with open(path_to_temps_pdf, 'wb') as fd:
+        with open(path_to_pdf, 'wb') as fd:
             for chunk in r.iter_content(1000):
                 fd.write(chunk)
 
-    if os.path.getsize(path_to_temps_pdf) < 200:
-        path_to_pdf = f"edt/{pdf_name}"
-
-        with open(path_to_pdf, 'wb') as fd:
-            with open(path_to_temps_pdf, 'rb') as fd2:
-                fd.write(fd2.read())
-
-    return os.path.getsize(path_to_temps_pdf)
+    return path_to_pdf
 
 
 async def send_edt_to_chat(channel, pdf_name: str, indices: list = None):
-    path_to_pdf = f"edt/temp/{pdf_name}"
-    if os.path.getsize(path_to_pdf) < 200:
-        path_to_pdf = f"edt/{pdf_name}"
+    path_to_pdf = f"{edt_path}/{pdf_name}"
     edt_id = indices[0]
 
     with open(path_to_pdf, 'rb') as fp:
@@ -767,26 +807,24 @@ async def send_edt_to_chat(channel, pdf_name: str, indices: list = None):
 
     i = 0
     for page in pages:
-        page.save(f"edt/edt{edt_id}_{i}.jpg", 'JPEG')
+        file = f"{edt_path}/edt{edt_id}_{i}.jpg"
+        page.save(file, 'JPEG')
 
-        with open(f"edt/edt{edt_id}_{i}.jpg", 'rb') as fp:
-            await channel.send(file=discord.File(fp, f"edt/edt{edt_id}_{i}.jpg"))
+        with open(file, 'rb') as fp:
+            await channel.send(file=discord.File(fp, file))
 
         i += 1
 
 
 async def check_edt_update(pdf_name: str, cle_dico: str, chat_name: str, dico_licence: dict = liscInfo):
-    path_to_pdf = f"edt/{pdf_name}"
+    edt_name = compare_edt(pdf_name, dico_licence[cle_dico])
+    corrupt = False
 
-    try:
-        poidOld = os.path.getsize(path_to_pdf)
-    except Exception:
-        poidOld = 0
-
-    poidNew = download_edt(pdf_name, dico_licence[cle_dico])
-
-    if poidOld == poidNew:
+    if edt_name in (2, 5, 6):
         return
+
+    elif edt_name in (3, 4):
+        corrupt = True
 
     servers = client.guilds
 
@@ -796,9 +834,12 @@ async def check_edt_update(pdf_name: str, cle_dico: str, chat_name: str, dico_li
             if chat_name == str(channel):
                 formated_role = cle_dico.upper().replace("MIAGE", " miage")
                 role = discord.utils.get(server.roles, name=formated_role)
-                await channel.send(f"changement d'edt pour : {role.mention}")
-                await send_edt_to_chat(channel, pdf_name, dico_licence[cle_dico])
-                return
+                if corrupt:
+                    await channel.send(f"changement d'edt pour : {role.mention} (pdf corrompu, voir sur le site)\n`Ceci est une ancienne version!`")
+                    await send_edt_to_chat(channel, edt_name, dico_licence[cle_dico])
+                else:
+                    await channel.send(f"changement d'edt pour : {role.mention}")
+                    await send_edt_to_chat(channel, edt_name, dico_licence[cle_dico])
 
 
 # -------------------------------------- EDT UPDATE ------------------------------
