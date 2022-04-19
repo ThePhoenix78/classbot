@@ -19,7 +19,7 @@ import sys
 # await asyncio.sleep(timera)
 # client.guilds
 
-bot_version = "3.6.0"
+bot_version = "3.6.1"
 classbot_folder = "classbot_folder"
 classbot_config_file = f"{classbot_folder}/classbot_config.json"
 plante_verte = f"{classbot_folder}/team_plante_verte.png"
@@ -826,6 +826,7 @@ async def check_edt_update(pdf_name: str, cle_dico: str, chat_name: str, dico_li
     elif edt_name in (3, 4):
         corrupt = True
         edt_name = pdf_name
+        return
 
     servers = client.guilds
 
@@ -861,9 +862,9 @@ async def check_edt_info():
     if not (6 <= this_time.hour <= 22):
         return
 
-    for timerEdtSwitch in range(len(role_liste)):
+    for i in range(len(role_liste)):
         try:
-            await check_edt_update(*role_liste[timerEdtSwitch])
+            await check_edt_update(*role_liste[i])
         except Exception:
             pass
         await asyncio.sleep(30)
