@@ -825,6 +825,7 @@ async def check_edt_update(pdf_name: str, cle_dico: str, chat_name: str, dico_li
 
     elif edt_name in (3, 4):
         corrupt = True
+        edt_name = pdf_name
 
     servers = client.guilds
 
@@ -836,10 +837,10 @@ async def check_edt_update(pdf_name: str, cle_dico: str, chat_name: str, dico_li
                 role = discord.utils.get(server.roles, name=formated_role)
                 if corrupt:
                     await channel.send(f"changement d'edt pour : {role.mention} (pdf corrompu, voir sur le site)\n`Ceci est une ancienne version!`")
-                    await send_edt_to_chat(channel, edt_name, dico_licence[cle_dico])
                 else:
                     await channel.send(f"changement d'edt pour : {role.mention}")
-                    await send_edt_to_chat(channel, edt_name, dico_licence[cle_dico])
+                    
+                await send_edt_to_chat(channel, edt_name, dico_licence[cle_dico])
 
 
 # -------------------------------------- EDT UPDATE ------------------------------
