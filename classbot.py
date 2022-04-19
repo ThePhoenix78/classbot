@@ -371,6 +371,30 @@ async def uptedt(ctx, url: str, cle_dico: str = ""):
 
 
 @client.command()
+@commands.check(is_in_staff)
+async def uptedtbackup(ctx):
+    che = "edt"
+
+    if len(ctx.message.attachments) == 0:
+        await ctx.send("Error! No file attached!")
+        return
+
+    attachment = ctx.message.attachments[0].url
+    name = ctx.message.attachments[0].filename
+
+    if name.lower() in ["liste_de_fichiers"]:
+        await ctx.send("Error! Forbidden files!")
+        return
+
+    with requests.get(attachment, stream=True) as r:
+        pat = f"{che}/{name}"
+        with open(pat, 'wb') as fd:
+            for chunk in r.iter_content(1000):
+                fd.write(chunk)
+
+    await ctx.send(f"File installed at : {pat}/{name}")
+
+@client.command()
 async def edt(ctx, cle_dico="", plus=""):
     plus = plus.replace("+", "")
 
@@ -523,6 +547,33 @@ async def clear_slash(ctx: discord_slash.SlashContext, amount: int = 1):
     if is_in_staff(ctx, True):
         await ctx.channel.purge(limit=amount)
         await ctx.send("Les messages ont bien été retiré.", hidden=True)
+
+
+@slash.slash(name="uptedtbackup", description="upload a backup file")
+async def uptedtbackup(ctx: discord_slash.SlashContext, file_name=None):
+    che = "edt"
+
+    if len(ctx.message.attachments) == 0:
+        await ctx.send("Error! No file attached!")
+        return
+
+    attachment = ctx.message.attachments[0].url
+    if file_name==None:
+        name = ctx.message.attachments[0].filename
+    else:
+        name=file_name
+
+    if name.lower() in ["liste_de_fichiers"]:
+        await ctx.send("Error! Forbidden files!")
+        return
+
+    with requests.get(attachment, stream=True) as r:
+        pat = f"{che}/{name}"
+        with open(pat, 'wb') as fd:
+            for chunk in r.iter_content(1000):
+                fd.write(chunk)
+
+    await ctx.send(f"File installed at : {pat}/{name}")
 
 
 @slash.slash(name="addrole", description="liste des commande")
