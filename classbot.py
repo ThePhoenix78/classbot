@@ -404,7 +404,7 @@ async def edt(ctx, cle_dico="", plus=""):
     corrupt = False
 
     if check in (3, 4, 5, 6):
-        pdf_name = f"temp/{cle_dico}.pdf"
+        pdf_name = f"{cle_dico}.pdf"
         corrupt = True
 
     channel = ctx.channel
