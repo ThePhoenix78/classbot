@@ -19,7 +19,7 @@ import sys
 # await asyncio.sleep(timera)
 # client.guilds
 
-bot_version = "3.5.3"
+bot_version = "3.6.0"
 classbot_folder = "classbot_folder"
 classbot_config_file = f"{classbot_folder}/classbot_config.json"
 plante_verte = f"{classbot_folder}/team_plante_verte.png"
@@ -839,7 +839,7 @@ async def check_edt_update(pdf_name: str, cle_dico: str, chat_name: str, dico_li
                     await channel.send(f"changement d'edt pour : {role.mention} (pdf corrompu, voir sur le site)\n`Ceci est une ancienne version!`")
                 else:
                     await channel.send(f"changement d'edt pour : {role.mention}")
-                    
+
                 await send_edt_to_chat(channel, edt_name, dico_licence[cle_dico])
 
 
