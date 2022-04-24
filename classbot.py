@@ -49,7 +49,7 @@ try:
     with open(classbot_config_file, "rb") as f:
         bot_config = json.loads(f.read())
         launch_check_edt = bot_config["edt"]
-        launch_check_edt = True
+        # launch_check_edt = True
 
 except (FileNotFoundError, KeyError):
     with open(classbot_config_file, "w") as f:
