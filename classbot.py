@@ -19,7 +19,7 @@ import sys
 # await asyncio.sleep(timera)
 # client.guilds
 
-bot_version = "3.7.1"
+bot_version = "3.7.2"
 classbot_folder = "classbot_folder"
 classbot_config_file = f"{classbot_folder}/classbot_config.json"
 plante_verte = f"{classbot_folder}/team_plante_verte.png"
@@ -803,6 +803,7 @@ def download_edt(pdf_name: str, indices: list = None, plus: int = 0):
         with open(path_to_pdf, 'wb') as fd:
             for chunk in r.iter_content(1000):
                 fd.write(chunk)
+
     return path_to_pdf
 
 
@@ -856,19 +857,18 @@ async def send_edt_to_chat(channel, pdf_name: str, indices: list = None):
 
 
 async def check_edt_update(pdf_name: str, cle_dico: str, chat_name: str, dico_licence: dict = liscInfo):
-    edt_name = compare_edt(pdf_name, dico_licence[cle_dico])
+    check = compare_edt(pdf_name, dico_licence[cle_dico])
     corrupt = False
 
-    if edt_name in (2, 5, 6):
+    if check in (2, 5, 6):
         return
 
-    elif edt_name in (3, 4):
+    elif check in (3, 4):
         corrupt = True
-        edt_name = pdf_name
         return
     else:
-        download_edt(pdf_name, dico_licence[cle_dico])
-    
+        download_edt(check, dico_licence[cle_dico])
+
     servers = client.guilds
 
     for server in servers:
@@ -881,8 +881,7 @@ async def check_edt_update(pdf_name: str, cle_dico: str, chat_name: str, dico_li
                     await channel.send(f"changement d'edt pour : {role.mention} (pdf corrompu, voir sur le site)\n`Ceci est une ancienne version!`")
                 else:
                     await channel.send(f"changement d'edt pour : {role.mention}")
-                await asyncio.sleep(0.5)
-                await send_edt_to_chat(channel, edt_name, dico_licence[cle_dico])
+                await send_edt_to_chat(channel, pdf_name, dico_licence[cle_dico])
                 break
 
 
