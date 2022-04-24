@@ -28,12 +28,11 @@ role_folder = f"{classbot_folder}/role_database.json"
 
 edt_database_path = f"{classbot_folder}/edt_database.json"
 edt_path = "edt"
-edt_temp_path = "edt/temp"
 
 programmer = os.path.basename(sys.argv[0])
 role_db = RoleManager(role_folder)
 
-vals = [classbot_folder, edt_path, edt_temp_path]
+vals = [classbot_folder, edt_path]
 
 for name in vals:
     Path(name).mkdir(exist_ok=True)
@@ -50,6 +49,7 @@ try:
     with open(classbot_config_file, "rb") as f:
         bot_config = json.loads(f.read())
         launch_check_edt = bot_config["edt"]
+        launch_check_edt = True
 
 except (FileNotFoundError, KeyError):
     with open(classbot_config_file, "w") as f:
@@ -178,11 +178,12 @@ def convert_url(url: str = ""):
     id2 = chiffre_temporaire - temp
 
     value = [id0, id1, id2]
-    path_to_pdf = download_edt("test.pdf", value)
 
-    size = os.path.getsize(path_to_pdf)
+    infos = check_edt_info(value)
+    size = infos["Content-Length"]
+    status = infos["status"]
 
-    if size < 500:
+    if size < 500 or status != 200:
         return False
 
     return value
@@ -237,7 +238,7 @@ async def on_ready():
     change_status.start()
     maintenance.start()
 
-    check_edt_info.start()
+    check_edt_lisc.start()
 
     print("version : ", programmer, bot_version)
     print("Logged in as : ", client.user.name)
@@ -406,6 +407,8 @@ async def edt(ctx, cle_dico="", plus=""):
     if check in (3, 4, 5, 6):
         pdf_name = f"{cle_dico}.pdf"
         corrupt = True
+    else:
+        download_edt(pdf_name, liscInfo[cle_dico], plus)
 
     channel = ctx.channel
 
@@ -730,22 +733,25 @@ async def on_member_remove(ctx):
 
 def compare_edt(pdf_name, indices: list = None, plus: int = 0):
     path_to_pdf = f"{edt_path}/{pdf_name}"
-    temp_pdf = f"temp/{pdf_name}"
-    path_to_temp = f"{edt_path}/{temp_pdf}"
 
     try:
         poid_old = os.path.getsize(path_to_pdf)
     except Exception:
         poid_old = 0
 
-    poid_new = download_edt(temp_pdf, indices, plus)
-    poid_new = os.path.getsize(poid_new)
+    infos = check_edt_info(indices, plus)
+    try:
+        poid_new = infos["Content-Length"]
+    except KeyError:
+        return 5
 
-    if poid_old == poid_new and os.path.getsize(path_to_temp) < 500:
+    # status = infos["status"]
+
+    if poid_old == poid_new and poid_new < 500:
         # même taille et corrompu
         return 5
 
-    elif poid_old == poid_new and os.path.getsize(path_to_temp) < 2000:
+    elif poid_old == poid_new and poid_new < 2000:
         # même taille et erreur serveur
         return 6
 
@@ -753,17 +759,13 @@ def compare_edt(pdf_name, indices: list = None, plus: int = 0):
         # même taille
         return 2
 
-    elif os.path.getsize(path_to_temp) < 500:
+    elif poid_new < 500:
         # pdf corrompu
         return 3
 
-    elif os.path.getsize(path_to_temp) < 2000:
+    elif poid_new < 2000:
         # erreur serveur
         return 4
-
-    with open(path_to_pdf, 'wb') as f1:
-        with open(path_to_temp, 'rb') as f2:
-            f1.write(f2.read())
 
     return path_to_pdf
 
@@ -794,6 +796,35 @@ def download_edt(pdf_name: str, indices: list = None, plus: int = 0):
                 fd.write(chunk)
 
     return path_to_pdf
+
+
+def check_edt_info(indices: list = None, plus: int = 0):
+    # permet de transfomer la date en compteur du jour dans la semaine
+    # et de la semaine dans l'année (retourne l'année, le numéro de semaine et le numéro du jour)
+    # utilisé pour les ids du liens pour l'edt
+    current_date = date.isocalendar(datetime.now())
+
+    num_semaine = current_date[1]
+    annee = current_date[0]
+
+    if current_date[2] > 5:
+        num_semaine += 1
+
+    while num_semaine-indices[2] < 0:
+        num_semaine += 1
+
+    url_edt = "http://applis.univ-nc.nc/gedfs/edtweb2/{}.{}/PDF_EDT_{}_{}_{}.pdf"
+    url = url_edt.format(indices[0], num_semaine - indices[2] + plus, indices[1], num_semaine + plus, annee)
+
+    edt_info = {}
+
+    val = requests.head(url)
+    val.close()
+
+    edt_info = dict(val.headers)
+    edt_info["status"] = val.status_code
+
+    return edt_info
 
 
 async def send_edt_to_chat(channel, pdf_name: str, indices: list = None):
@@ -840,15 +871,16 @@ async def check_edt_update(pdf_name: str, cle_dico: str, chat_name: str, dico_li
                     await channel.send(f"changement d'edt pour : {role.mention} (pdf corrompu, voir sur le site)\n`Ceci est une ancienne version!`")
                 else:
                     await channel.send(f"changement d'edt pour : {role.mention}")
-
+                asyncio.sleep(0.3)
                 await send_edt_to_chat(channel, edt_name, dico_licence[cle_dico])
+                break
 
 
 # -------------------------------------- EDT UPDATE ------------------------------
 
 
 @tasks.loop(seconds=1800)
-async def check_edt_info():
+async def check_edt_lisc():
     if not launch_check_edt:
         return
 
