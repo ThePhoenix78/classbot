@@ -401,12 +401,16 @@ async def edt(ctx, cle_dico="", plus=""):
     except Exception:
         plus = 0
 
-    check = compare_edt(pdf_name, liscInfo[cle_dico], plus)
     corrupt = False
+    infos = check_edt_info(liscInfo[cle_dico], plus)
 
-    if check in (3, 4, 5, 6):
+    size = infos["Content-Length"]
+    status = infos["status"]
+
+    if size < 500 or status != 200:
         pdf_name = f"{cle_dico}.pdf"
         corrupt = True
+
     else:
         download_edt(pdf_name, liscInfo[cle_dico], plus)
 
