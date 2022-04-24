@@ -405,22 +405,25 @@ async def edt(ctx, cle_dico="", plus=""):
         plus = 0
 
     corrupt = False
+    print("before")
     infos = check_edt_info(liscInfo[cle_dico], plus)
-
+    print("infos")
+    print(infos)
     try:
         size = infos["Content-Length"]
     except KeyError:
         size = 0
 
+    print(size)
     status = infos["status"]
 
     if size < 500 or status != 200:
         pdf_name = f"{cle_dico}.pdf"
         corrupt = True
-
     else:
         download_edt(pdf_name, liscInfo[cle_dico], plus)
 
+    print(corrupt)
     channel = ctx.channel
 
     message = f"EDT pour : {cle_dico.upper()}"
@@ -800,12 +803,10 @@ def download_edt(pdf_name: str, indices: list = None, plus: int = 0):
     url = url_edt.format(indices[0], num_semaine - indices[2] + plus, indices[1], num_semaine + plus, annee)
 
     path_to_pdf = f"{edt_path}/{pdf_name}"
-
     with requests.get(url, stream=True) as r:
         with open(path_to_pdf, 'wb') as fd:
             for chunk in r.iter_content(1000):
                 fd.write(chunk)
-
     return path_to_pdf
 
 
