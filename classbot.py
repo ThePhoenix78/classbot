@@ -19,7 +19,7 @@ import sys
 # await asyncio.sleep(timera)
 # client.guilds
 
-bot_version = "3.7.0"
+bot_version = "3.7.1"
 classbot_folder = "classbot_folder"
 classbot_config_file = f"{classbot_folder}/classbot_config.json"
 plante_verte = f"{classbot_folder}/team_plante_verte.png"
@@ -412,7 +412,7 @@ async def edt(ctx, cle_dico="", plus=""):
     except KeyError:
         size = 0
 
-    status = int(infos["status"]))
+    status = int(infos["status"])
 
     if (size < 500) or (status != 200):
         pdf_name = f"{cle_dico}.pdf"
