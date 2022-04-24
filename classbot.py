@@ -405,28 +405,21 @@ async def edt(ctx, cle_dico="", plus=""):
         plus = 0
 
     corrupt = False
-    print("before")
     infos = check_edt_info(liscInfo[cle_dico], plus)
-    print("infos")
-    print(infos)
+
     try:
-        size = infos["Content-Length"]
+        size = int(infos["Content-Length"])
     except KeyError:
         size = 0
 
-    print(size)
-    status = infos["status"]
-    await channel.send("test1")
-    if size < 500 or status != 200:
+    status = int(infos["status"]))
+
+    if (size < 500) or (status != 200):
         pdf_name = f"{cle_dico}.pdf"
         corrupt = True
-        await channel.send("test1a")
     else:
-        await channel.send("test1b")
         download_edt(pdf_name, liscInfo[cle_dico], plus)
-        await channel.send("test1c")
-    await channel.send("test2")
-    print(corrupt)
+
     channel = ctx.channel
 
     message = f"EDT pour : {cle_dico.upper()}"
