@@ -180,7 +180,10 @@ def convert_url(url: str = ""):
     value = [id0, id1, id2]
 
     infos = check_edt_info(value)
-    size = infos["Content-Length"]
+    try:
+        size = infos["Content-Length"]
+    except KeyError:
+        size = 0
     status = infos["status"]
 
     if size < 500 or status != 200:
