@@ -882,7 +882,7 @@ async def check_edt_update(pdf_name: str, cle_dico: str, chat_name: str, dico_li
                     await channel.send(f"changement d'edt pour : {role.mention} (pdf corrompu, voir sur le site)\n`Ceci est une ancienne version!`")
                 else:
                     await channel.send(f"changement d'edt pour : {role.mention}")
-                asyncio.sleep(0.3)
+                await asyncio.sleep(0.5)
                 await send_edt_to_chat(channel, edt_name, dico_licence[cle_dico])
                 break
 
