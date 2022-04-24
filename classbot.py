@@ -19,7 +19,7 @@ import sys
 # await asyncio.sleep(timera)
 # client.guilds
 
-bot_version = "3.6.1"
+bot_version = "3.7.0"
 classbot_folder = "classbot_folder"
 classbot_config_file = f"{classbot_folder}/classbot_config.json"
 plante_verte = f"{classbot_folder}/team_plante_verte.png"
