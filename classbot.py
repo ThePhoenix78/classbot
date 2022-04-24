@@ -416,13 +416,16 @@ async def edt(ctx, cle_dico="", plus=""):
 
     print(size)
     status = infos["status"]
-
+    await channel.send("test1")
     if size < 500 or status != 200:
         pdf_name = f"{cle_dico}.pdf"
         corrupt = True
+        await channel.send("test1a")
     else:
+        await channel.send("test1b")
         download_edt(pdf_name, liscInfo[cle_dico], plus)
-
+        await channel.send("test1c")
+    await channel.send("test2")
     print(corrupt)
     channel = ctx.channel
 
