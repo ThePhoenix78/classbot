@@ -751,7 +751,7 @@ def compare_edt(pdf_name, indices: list = None, plus: int = 0):
 
     infos = check_edt_info(indices, plus)
     try:
-        poid_new = infos["Content-Length"]
+        poid_new = int(infos["Content-Length"])
     except KeyError:
         return 5
 
@@ -856,8 +856,11 @@ async def send_edt_to_chat(channel, pdf_name: str, indices: list = None):
 
 
 async def check_edt_update(pdf_name: str, cle_dico: str, chat_name: str, dico_licence: dict = liscInfo):
+    print(pdf_name)
     edt_name = compare_edt(pdf_name, dico_licence[cle_dico])
+    print("done")
     corrupt = False
+    print(edt_name)
 
     if edt_name in (2, 5, 6):
         return
