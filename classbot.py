@@ -407,7 +407,11 @@ async def edt(ctx, cle_dico="", plus=""):
     corrupt = False
     infos = check_edt_info(liscInfo[cle_dico], plus)
 
-    size = infos["Content-Length"]
+    try:
+        size = infos["Content-Length"]
+    except KeyError:
+        size = 0
+
     status = infos["status"]
 
     if size < 500 or status != 200:
