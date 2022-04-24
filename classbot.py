@@ -856,11 +856,8 @@ async def send_edt_to_chat(channel, pdf_name: str, indices: list = None):
 
 
 async def check_edt_update(pdf_name: str, cle_dico: str, chat_name: str, dico_licence: dict = liscInfo):
-    print(pdf_name)
     edt_name = compare_edt(pdf_name, dico_licence[cle_dico])
-    print("done")
     corrupt = False
-    print(edt_name)
 
     if edt_name in (2, 5, 6):
         return
@@ -869,7 +866,9 @@ async def check_edt_update(pdf_name: str, cle_dico: str, chat_name: str, dico_li
         corrupt = True
         edt_name = pdf_name
         return
-
+    else:
+        download_edt(pdf_name, dico_licence[cle_dico])
+    
     servers = client.guilds
 
     for server in servers:
