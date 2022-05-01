@@ -19,7 +19,7 @@ import sys
 # await asyncio.sleep(timera)
 # client.guilds
 
-bot_version = "3.7.2"
+bot_version = "3.7.3"
 classbot_folder = "classbot_folder"
 classbot_config_file = f"{classbot_folder}/classbot_config.json"
 plante_verte = f"{classbot_folder}/team_plante_verte.png"
@@ -94,7 +94,7 @@ Si tu as la moindre question, n'hésite pas a demander de l'aide
 
 
 def get_help(ctx, is_slash: bool = False):
-    embed = discord.Embed(title="EDT BOT Commands", description="Préfix : `?`", color=discord.Color.blue())
+    embed = discord.Embed(title="EDT BOT Commands", description=f"Préfix : `?` | Version : `{bot_version}`", color=discord.Color.blue())
     embed.set_author(name='Liste des commandes')
     embed.add_field(name="**edt**", value="pour voir son emploi du temps")
     embed.add_field(name="**clear (nombre de massage à retirer)**", value="pour supprimer le dernier message")
@@ -110,6 +110,7 @@ def get_help(ctx, is_slash: bool = False):
         embed.add_field(name="**stop**", value="stop le bot")
         embed.add_field(name="**update**", value="update le bot")
         embed.add_field(name="**uptedt (url) (classe)**", value="update l'emploi du temps")
+        embed.add_field(name="**edtpush {pdf}**", value="prends le pdf en entrée pour le mettre à jour")
         embed.add_field(name="**version**", value="donne la version du bot")
     # embed.set_image(url=attachment)
 
