@@ -168,6 +168,7 @@ def convert_url(url: str = ""):
 
     id0 = int(magic.pop(0))
     id1 = int(magic2.pop(0))
+
     chiffre_temporaire = int(magic2[0])
 
     temp = int(magic[0])
@@ -750,6 +751,7 @@ def compare_edt(pdf_name, indices: list = None, plus: int = 0):
         poid_old = 0
 
     infos = check_edt_info(indices, plus)
+
     try:
         poid_new = int(infos["Content-Length"])
     except KeyError:
@@ -777,7 +779,7 @@ def compare_edt(pdf_name, indices: list = None, plus: int = 0):
         # erreur serveur
         return 4
 
-    return path_to_pdf
+    return 0
 
 
 def download_edt(pdf_name: str, indices: list = None, plus: int = 0):
@@ -860,14 +862,15 @@ async def check_edt_update(pdf_name: str, cle_dico: str, chat_name: str, dico_li
     check = compare_edt(pdf_name, dico_licence[cle_dico])
     corrupt = False
 
-    if check in (2, 5, 6):
+    if check == 0:
+        download_edt(pdf_name, dico_licence[cle_dico])
+
+    elif check in (2, 5, 6):
         return
 
     elif check in (3, 4):
         corrupt = True
         return
-    else:
-        download_edt(check, dico_licence[cle_dico])
 
     servers = client.guilds
 
