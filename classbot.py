@@ -19,7 +19,7 @@ import sys
 # await asyncio.sleep(timera)
 # client.guilds
 
-bot_version = "3.7.3"
+bot_version = "3.7.4"
 classbot_folder = "classbot_folder"
 classbot_config_file = f"{classbot_folder}/classbot_config.json"
 plante_verte = f"{classbot_folder}/team_plante_verte.png"
@@ -431,7 +431,16 @@ async def edt(ctx, cle_dico="", plus=""):
     if plus:
         message += f" (+{plus})"
 
-    if corrupt:
+    current_date = date.isocalendar(datetime.now())
+    week_end = False
+    if current_date[2] > 5:
+        week_end = True
+
+    if corrupt and week_end:
+        await channel.send("`URL générée invalide, contactez un Admin pour de l'aide`")
+        return
+
+    elif corrupt:
         message += "\n`EDT Corrompu! Ceci est une ancienne version!`"
 
     await channel.send(message)
