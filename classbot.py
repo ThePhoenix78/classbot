@@ -182,11 +182,12 @@ def convert_url(url: str = ""):
     value = [id0, id1, id2]
 
     infos = check_edt_info(value)
+
     try:
-        size = infos["Content-Length"]
+        size = int(infos["Content-Length"])
     except KeyError:
         size = 0
-    status = infos["status"]
+    status = int(infos["status"])
 
     if size < 500 or status != 200:
         return False
@@ -349,6 +350,7 @@ async def sedt(ctx):
 async def uptedt(ctx, url: str, cle_dico: str = ""):
     gestion = "maint."
     val = convert_url(url)
+    print(val)
 
     if not val:
         await ctx.send("`Error! Something went wrong with the url!`")
@@ -368,6 +370,7 @@ async def uptedt(ctx, url: str, cle_dico: str = ""):
                 cle_dico = role
                 break
 
+    print(cle_dico)
     if not cle_dico:
         await ctx.send("`Error! Something went wrong with the role!`")
         return
