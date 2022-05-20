@@ -385,6 +385,35 @@ async def uptedt(ctx, url: str, cle_dico: str = ""):
 
 
 @client.command()
+@commands.check(is_in_maintenance)
+async def getdb(ctx):
+    with open(edt_database_path, 'rb') as fp:
+        await ctx.send(file=discord.File(fp, "edt_database.json"))
+
+
+@client.command()
+@commands.check(is_in_maintenance)
+async def pushdb(ctx):
+    if len(ctx.message.attachments) == 0:
+        await ctx.send("Error! No file attached!")
+        return
+
+    attachment = ctx.message.attachments[0].url
+    name = ctx.message.attachments[0].filename
+
+    if name.lower() != "edt_database.json":
+        await ctx.send("Error! Not a valid filename!")
+        return
+
+    with requests.get(attachment, stream=True) as r:
+        with open(edt_database_path, 'wb') as fd:
+            for chunk in r.iter_content(1000):
+                fd.write(chunk)
+
+    await ctx.send(f"File installed at : {edt_database_path}")
+
+
+@client.command()
 async def edt(ctx, cle_dico="", plus=""):
     plus = plus.replace("+", "")
 
@@ -432,6 +461,7 @@ async def edt(ctx, cle_dico="", plus=""):
         message += f" (+{plus})"
 
     current_date = date.isocalendar(datetime.now())
+
     week_end = False
     if current_date[2] > 5:
         week_end = True
