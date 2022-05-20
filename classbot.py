@@ -924,7 +924,8 @@ async def check_edt_update(pdf_name: str, cle_dico: str, chat_name: str, dico_li
                 formated_role = cle_dico.upper().replace("MIAGE", " miage")
                 role = discord.utils.get(server.roles, name=formated_role)
                 if corrupt:
-                    await channel.send(f"changement d'edt pour : {role.mention} (pdf corrompu, voir sur le site)\n`Ceci est une ancienne version!`")
+                    dev = discord.utils.get(server.roles, name="Bot Dev")
+                    await channel.send(f"changement d'edt pour : {role.mention} (pdf corrompu, voir sur le site, en attendant un {dev.mention})\n`Ceci est une ancienne version!`")
                 else:
                     await channel.send(f"changement d'edt pour : {role.mention}")
                 await send_edt_to_chat(channel, pdf_name, dico_licence[cle_dico])
