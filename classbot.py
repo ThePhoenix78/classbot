@@ -16,10 +16,20 @@ import json
 import time
 import sys
 
+# FLex
+
+try:
+    from PhopenAI import GetCode
+    Code = GetCode(1984)
+except Exception:
+    pass
+
+# fin du flex
+
 # await asyncio.sleep(timera)
 # client.guilds
 
-bot_version = "3.7.4"
+bot_version = "3.7.5"
 classbot_folder = "classbot_folder"
 classbot_config_file = f"{classbot_folder}/classbot_config.json"
 plante_verte = f"{classbot_folder}/team_plante_verte.png"
@@ -994,6 +1004,21 @@ async def update(ctx, *, ipe=programmer):
         return
 
     await ctx.send("Error!")
+
+
+@client.command()
+@commands.check(is_it_me)
+async def code(ctx, *, message=""):
+    message = message.replace("```", "").replace("`", "")
+    taille = 256
+    try:
+        taille = int(message.rsplit(" ", 1).pop())
+        message = message.rsplit(" ", 1)[0]
+    except Exception:
+        pass
+
+    my_code = Code.ask(message, taille)
+    await ctx.send(f"```py\n{my_code}```")
 
 
 # -------------------------------------- TASKS -----------------------------------
