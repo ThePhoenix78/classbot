@@ -205,6 +205,11 @@ def convert_url(url: str = ""):
     return value
 
 
+def is_it_me(ctx):
+    if ctx.author.id in (366055261930127360, 649532920599543828):
+        return True
+
+
 def is_dev(ctx):
     if ctx.author.id in (366055261930127360, 649532920599543828):
         return True
