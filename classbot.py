@@ -385,7 +385,6 @@ async def uptedt(ctx, url: str, cle_dico: str = ""):
                 cle_dico = role
                 break
 
-    print(cle_dico)
     if not cle_dico:
         await ctx.send("`Error! Something went wrong with the role!`")
         return
@@ -482,10 +481,16 @@ async def edt(ctx, cle_dico="", plus=""):
         week_end = True
 
     if corrupt and week_end:
-        await channel.send("`URL générée invalide, contactez un Admin pour de l'aide`")
+        guild = discord.utils.find(lambda g: g.id == ctx.guild_id, client.guilds)
+        dev = discord.utils.get(guild.roles, name="Bot Dev")
+        await channel.send(f"URL générée invalide, voir sur le site, en attendant un {dev.mention})\n`Ceci est une ancienne version!`")
+        # await channel.send("`URL générée invalide, contactez un Admin pour de l'aide`")
         return
 
     elif corrupt:
+        guild = discord.utils.find(lambda g: g.id == ctx.guild_id, client.guilds)
+        dev = discord.utils.get(guild.roles, name="Bot Dev")
+        await channel.send(f"URL générée invalide, voir sur le site, en attendant un {dev.mention})\n`Ceci est une ancienne version!`")
         message += "\n`EDT Corrompu! Ceci est une ancienne version!`"
 
     await channel.send(message)
@@ -943,6 +948,7 @@ async def check_edt_update(pdf_name: str, cle_dico: str, chat_name: str, dico_li
                     await channel.send(f"changement d'edt pour : {role.mention} (pdf corrompu, voir sur le site, en attendant un {dev.mention})\n`Ceci est une ancienne version!`")
                 else:
                     await channel.send(f"changement d'edt pour : {role.mention}")
+
                 await send_edt_to_chat(channel, pdf_name, dico_licence[cle_dico])
                 break
 
