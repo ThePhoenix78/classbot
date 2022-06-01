@@ -490,8 +490,8 @@ async def edt(ctx, cle_dico="", plus=""):
     elif corrupt:
         guild = discord.utils.find(lambda g: g.id == ctx.guild_id, client.guilds)
         dev = discord.utils.get(guild.roles, name="Bot Dev")
-        await channel.send(f"URL générée invalide, voir sur le site, en attendant un {dev.mention})\n`Ceci est une ancienne version!`")
-        message += "\n`EDT Corrompu! Ceci est une ancienne version!`"
+        message += f"URL générée invalide, voir sur le site, en attendant un {dev.mention})\n`Ceci est une ancienne version!`"
+        # message += "\n`EDT Corrompu! Ceci est une ancienne version!`"
 
     await channel.send(message)
     await send_edt_to_chat(channel, pdf_name, liscInfo[cle_dico])
